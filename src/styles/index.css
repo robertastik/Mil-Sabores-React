@@ -1,1 +1,16 @@
+@font-face {
+    font-family: Pacifico;
+    src: url("../assets/fonts/Pacifico-Regular.ttf");
+}
+
+@font-face {
+    font-family: Lato;
+    src: url("../assets/fonts/Lato-Regular.ttf");
+}
+
 @import "tailwindcss";
+
+@theme {
+    --font-lato: Lato,'sans-serif';
+    --font-pacifico: Pacifico,'cursive';
+}
