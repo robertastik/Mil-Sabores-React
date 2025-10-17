@@ -1,8 +1,21 @@
+import HeroImage from "../assets/images/hero-image.jpg";
+
 export default function Home() {
   return (
-    <section className="flex flex-col items-center justify-top h-screen pt-10 font-lato">
-      <h1>¡Bienvenido a Mil Sabores!</h1>
-      <p>La mejor pasteleria de Santiago</p>
+    <section className="h-screen bg-cafe-claro">
+      <div className="relative h-120 w-full overflow-hidden">
+        <img
+          src={HeroImage}
+          alt="Mil Sabores"
+          className="w-full h-full object-cover brightness-75"
+        />
+      </div>
+      <div>
+        <span className="text-2xl text-cafe-oscuro font-texto flex justify-center items-center pt-8">
+          Productos destacados
+        </span>
+      </div>
     </section>
+    
   );
 }

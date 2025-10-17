@@ -7,8 +7,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        pacifico: ['Pacifico', 'cursive'],
-        lato: ['Lato', 'sans-serif'],
+        titulo: ['Pacifico', 'cursive'],
+        texto: ['Lato', 'sans-serif'],
       },
     },
   },
