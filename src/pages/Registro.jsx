@@ -1,7 +1,44 @@
 import { NavLink } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import hero from "../assets/images/hero-image.jpg";
 
 export default function Register() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [fechaNacimiento, setFechaNacimiento] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [cupon, setCupon] = useState("");
+  const [error, setError] = useState("");
+  const [cargando] = useState(false);
+  const [mostrarBeneficioDuoc, setMostrarBeneficioDuoc] = useState(false);
+
+  useEffect(() => {
+    setMostrarBeneficioDuoc(/@duoc\./i.test(email));
+  }, [email]);
+
+  const validar = () => {
+    if (!name) return "El nombre es obligatorio";
+    if (!email) return "El email es obligatorio";
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!re.test(email)) return "Email invalido.";
+    if (!fechaNacimiento) return "La fecha de nacimiento es obligatoria";
+    if (!password) return "La contraseña es obligatoria";
+    if (password.length < 6) return "La contraseña debe tener al menos 6 caracteres";
+    if (password !== confirmPassword) return "Las contraseñas no coinciden";
+    return "";
+  };
+
+  const onSubmit = async(e) => {
+    e.preventDefault();
+    setError("");
+    const v = validar();
+    if (v) {
+      setError(v);
+      return;
+    }
+  }
+
   return (
     <section
       className="min-h-screen bg-cafe-claro flex items-center justify-center relative overflow-hidden"
@@ -11,10 +48,15 @@ export default function Register() {
         backgroundPosition: "center",
       }}
     >
-      <div className="relative z-10 w-full max-w-lg mx-4 bg-cafe-claro text-cafe-oscuro rounded-3xl p-8 shadow-2xl border-1 border-cafe-oscuro">
+      <div className="relative w-full max-w-lg mx-4 bg-cafe-claro text-cafe-oscuro rounded-3xl p-8 shadow-2xl border-1 border-cafe-oscuro">
         <h2 className="font-titulo text-4xl text-center mb-6">Crear Cuenta</h2>
 
-        <form className="space-y-4" id="registro-form">
+        <form className="space-y-4" id="registro-form" onSubmit={onSubmit} noValidate>
+          {error && (
+            <div className="text-sm text-red-600 bg-red-100 p-3 pl-4 rounded-2xl">
+              {error}
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium mb-1" htmlFor="name">
               Nombre
@@ -24,6 +66,8 @@ export default function Register() {
               type="text"
               id="name"
               name="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
             />
           </div>
@@ -37,16 +81,17 @@ export default function Register() {
               type="email"
               id="email"
               name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
             <p
               id="duoc-benefit-message"
-              className="text-sm text-cafe-oscuro/70 mt-1 hidden"
+              className={`text-sm text-cafe-oscuro/70 mt-1 ${mostrarBeneficioDuoc ? "block" : "hidden"}`}
             >
               Conseguirás una torta gratis en tu cumpleaños
             </p>
           </div>
-
           <div>
             <label className="block text-sm font-medium mb-1" htmlFor="dob">
               Fecha de Nacimiento
@@ -56,6 +101,8 @@ export default function Register() {
               type="date"
               id="dob"
               name="dob"
+              value={fechaNacimiento}
+              onChange={(e) => setFechaNacimiento(e.target.value)}
               required
             />
           </div>
@@ -72,6 +119,8 @@ export default function Register() {
               type="password"
               id="password"
               name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
@@ -88,6 +137,8 @@ export default function Register() {
               type="password"
               id="confirm-password"
               name="confirm-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
           </div>
@@ -101,14 +152,17 @@ export default function Register() {
               type="text"
               id="coupon"
               name="coupon"
+              value={cupon}
+              onChange={(e) => setCupon(e.target.value)}
             />
           </div>
 
           <button
             type="submit"
             className="w-full  text-cafe-oscuro rounded-2xl px-4 py-2 border-1 border-cafe-oscuro hover:bg-cafe-oscuro hover:cursor-pointer hover:text-cafe-claro transition-all duration-200"
+            disabled={cargando}
           >
-            Crear Cuenta
+            {cargando ? "Creando Cuenta..." : "Crear Cuenta"}
           </button>
         </form>
 

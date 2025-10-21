@@ -1,7 +1,35 @@
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import hero from "../assets/images/hero-image.jpg";
 
+
 export default function Login() {
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
+
+  const validar = () => {
+    if (!email) return "El email es obligatorio";
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(!re.test(email)) return "Email invalido.";
+    if (!password) return "La contraseña es obligatoria";
+    if(password.length < 6) return "La contraseña debe tener al menos 6 caracteres";
+    return "";
+  };
+
+  const onSubmit = async(e) => {
+    e.preventDefault();
+    setError("");
+    const v = validar();
+    if (v) {
+      setError(v);
+      return;
+    }
+    setCargando(true);
+  };
+
   return (
     <section
       className="min-h-screen bg-cafe-claro flex items-center justify-center relative overflow-hidden"
@@ -15,8 +43,12 @@ export default function Login() {
         <h2 className="font-titulo text-4xl text-center mb-6">
           Iniciar Sesión
         </h2>
+        <form className="space-y-4" onSubmit={onSubmit} noValidate>
+          
+          {error && (
+            <div className="text-sm text-red-600 bg-red-100 p-3 pl-4 rounded-2xl">{error}</div>
+          )}
 
-        <form className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1" htmlFor="email">
               Correo Electrónico
@@ -27,10 +59,11 @@ export default function Login() {
               id="email"
               name="email"
               placeholder="tu@ejemplo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
-
           <div>
             <label
               className="block text-sm font-medium mb-1"
@@ -44,15 +77,17 @@ export default function Login() {
               id="password"
               name="password"
               placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-
           <button
             className="w-full  text-cafe-oscuro rounded-2xl px-4 py-2 border-1 border-cafe-oscuro hover:bg-cafe-oscuro hover:cursor-pointer hover:text-cafe-claro transition-all duration-200"
             type="submit"
+            disabled={cargando}
           >
-            Iniciar Sesión
+            {cargando ? "Ingresando..." : "Iniciar Sesión"}
           </button>
         </form>
 
