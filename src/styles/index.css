@@ -8,11 +8,17 @@
     src: url("../assets/fonts/Inter_24pt-Regular.ttf");
 }
 
+@font-face {
+    font-family: PlayfairDisplay;
+    src: url("../assets/fonts/PlayfairDisplay-Regular.ttf");
+}
+
 @import "tailwindcss";
 
 @theme {
     --font-texto: Inter,'sans-serif';
     --font-titulo: Pacifico,'cursive';
+    --font-subtitulo: PlayfairDisplay,'serif';
 
     --color-cafe-claro: #fff5e1;
     --color-rosa: #ffc0cb;
