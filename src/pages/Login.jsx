@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import hero from "../assets/images/hero-image.jpg";
 
-
 export default function Login() {
-
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -13,13 +12,14 @@ export default function Login() {
   const validar = () => {
     if (!email) return "El email es obligatorio";
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if(!re.test(email)) return "Email invalido.";
+    if (!re.test(email)) return "Email invalido.";
     if (!password) return "La contraseña es obligatoria";
-    if(password.length < 6) return "La contraseña debe tener al menos 6 caracteres";
+    if (password.length < 6)
+      return "La contraseña debe tener al menos 6 caracteres";
     return "";
   };
 
-  const onSubmit = async(e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
     const v = validar();
@@ -28,6 +28,21 @@ export default function Login() {
       return;
     }
     setCargando(true);
+    // Simulate API call
+    setTimeout(() => {
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const user = users.find(
+        (user) => user.email === email && user.password === password
+      );
+
+      if (user) {
+        localStorage.setItem("loggedInUser", JSON.stringify(user));
+        navigate("/");
+      } else {
+        setError("Correo electrónico o contraseña incorrectos.");
+      }
+      setCargando(false);
+    }, 1000);
   };
 
   return (
@@ -40,13 +55,14 @@ export default function Login() {
       }}
     >
       <div className="relative z-10 w-full max-w-md mx-4 bg-cafe-claro text-cafe-oscuro rounded-3xl p-8 shadow-2xl border-1 border-cafe-oscuro">
-        <h2 className="font-titulo text-4xl text-center mb-6">
+        <h2 className="font-subtitulo text-4xl text-center mb-6">
           Iniciar Sesión
         </h2>
         <form className="space-y-4" onSubmit={onSubmit} noValidate>
-          
           {error && (
-            <div className="text-sm text-red-600 bg-red-100 p-3 pl-4 rounded-2xl">{error}</div>
+            <div className="text-sm text-red-600 bg-red-100 p-3 pl-4 rounded-2xl">
+              {error}
+            </div>
           )}
 
           <div>

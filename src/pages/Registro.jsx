@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import hero from "../assets/images/hero-image.jpg";
 
@@ -10,7 +10,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [cupon, setCupon] = useState("");
   const [error, setError] = useState("");
-  const [cargando] = useState(false);
+  const [cargando, setCargando] = useState(false);
   const [mostrarBeneficioDuoc, setMostrarBeneficioDuoc] = useState(false);
 
   useEffect(() => {
@@ -24,12 +24,15 @@ export default function Register() {
     if (!re.test(email)) return "Email invalido.";
     if (!fechaNacimiento) return "La fecha de nacimiento es obligatoria";
     if (!password) return "La contraseña es obligatoria";
-    if (password.length < 6) return "La contraseña debe tener al menos 6 caracteres";
+    if (password.length < 6)
+      return "La contraseña debe tener al menos 6 caracteres";
     if (password !== confirmPassword) return "Las contraseñas no coinciden";
     return "";
   };
 
-  const onSubmit = async(e) => {
+  const navigate = useNavigate();
+
+  const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
     const v = validar();
@@ -37,7 +40,29 @@ export default function Register() {
       setError(v);
       return;
     }
-  }
+    setCargando(true);
+
+    // Simulate API call / DB check
+    setTimeout(() => {
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const userExists = users.find((user) => user.email === email);
+
+      if (userExists) {
+        setError("Este correo electrónico ya está registrado.");
+        setCargando(false);
+        return;
+      }
+
+      // NOTE: In a real app, you should hash the password before saving.
+      const newUser = { name, email, fechaNacimiento, password };
+      users.push(newUser);
+      localStorage.setItem("users", JSON.stringify(users));
+
+      setCargando(false);
+      // Redirect to login page after successful registration
+      navigate("/login");
+    }, 1000);
+  };
 
   return (
     <section
@@ -49,9 +74,16 @@ export default function Register() {
       }}
     >
       <div className="relative w-full max-w-lg mx-4 bg-cafe-claro text-cafe-oscuro rounded-3xl p-8 shadow-2xl border-1 border-cafe-oscuro">
-        <h2 className="font-titulo text-4xl text-center mb-6">Crear Cuenta</h2>
+        <h2 className="font-subtitulo text-4xl text-center mb-6">
+          Crear Cuenta
+        </h2>
 
-        <form className="space-y-4" id="registro-form" onSubmit={onSubmit} noValidate>
+        <form
+          className="space-y-4"
+          id="registro-form"
+          onSubmit={onSubmit}
+          noValidate
+        >
           {error && (
             <div className="text-sm text-red-600 bg-red-100 p-3 pl-4 rounded-2xl">
               {error}
@@ -87,7 +119,9 @@ export default function Register() {
             />
             <p
               id="duoc-benefit-message"
-              className={`text-sm text-cafe-oscuro/70 mt-1 ${mostrarBeneficioDuoc ? "block" : "hidden"}`}
+              className={`text-sm text-cafe-oscuro/70 mt-1 ${
+                mostrarBeneficioDuoc ? "block" : "hidden"
+              }`}
             >
               Conseguirás una torta gratis en tu cumpleaños
             </p>
