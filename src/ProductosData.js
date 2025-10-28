@@ -174,5 +174,13 @@ export const productosPasteleria = [
     descripcion: 'Pequeños dulces hechos de claras de huevo batidas con azúcar, horneados a baja temperatura hasta que quedan secos y crujientes.',
     precio: 2990,
     imagenUrl: 'https://www.recetasnestle.com.pe/sites/default/files/styles/recipe_detail_desktop_new/public/srh_recipes/f411ec369da32e4b42ed184220d30a85.webp?itok=xH9iySeF'
+  },
+  {
+    id: 'torta-007',
+    nombre: 'Torta pastelera',
+    categoria: 'Tortas y Pasteles',
+    descripcion: 'Torta rellena de crema pastelera y cubierta con frutas frescas o glaseado.',
+    precio: '8990',
+    imagenUrl: 'https://i5.walmartimages.cl/asr/a1afe955-13cc-4f6b-94b2-8e608ad77570.0cbab0a9265430beeaf5a5598a443337.jpeg?null=&odnHeight=612&odnWidth=612&odnBg=FFFFFF'
   }
 ];

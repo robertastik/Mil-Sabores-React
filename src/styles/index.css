@@ -24,3 +24,7 @@
     --color-rosa: #ffc0cb;
     --color-cafe-oscuro: #5d4037;
 }
+
+html {
+    scroll-behavior: smooth;
+}

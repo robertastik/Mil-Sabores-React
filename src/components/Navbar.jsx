@@ -27,14 +27,11 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-cafe-claro p-8 z-10 sticky top-0 border-b-1 border-cafe-oscuro">
+    <nav className="bg-cafe-claro p-8 z-10 sticky top-0 border-b-1 border-cafe-oscuro shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)]">
       <div className="flex items-center">
-        {/* Logo on the left */}
         <NavLink to="/" className="pl-4 text-cafe-oscuro text-5xl font-titulo">
           Mil Sabores
         </NavLink>
-
-        {/* Center navigation items */}
         <div className="flex-1 flex justify-center">
           <ul className="flex gap-8">
             <li>
@@ -63,8 +60,6 @@ export default function Navbar() {
             </li>
           </ul>
         </div>
-
-        {/* Auth section on the right */}
         <div className="pr-4 relative">
           {user ? (
             <div className="flex items-center gap-4">
