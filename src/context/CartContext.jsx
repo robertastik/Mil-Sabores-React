@@ -106,7 +106,7 @@ export const CartProvider = ({ children }) => {
     }
   }
 
-  // calcular si hoy es cumpleaños y es duoc
+  // calcular si hoy es cumpleaños y si es de duoc
   const hasFreeBirthdayCake = (() => {
     if (!loggedInUser || !loggedInUser.isDuoc || !loggedInUser.fechaNacimiento)
       return false;

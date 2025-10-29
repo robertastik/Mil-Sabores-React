@@ -130,6 +130,7 @@ const Productos = () => {
                     {grupo.map((producto) => (
                       <div
                         key={producto.id}
+                        onClick={() => navigate(`/producto/${producto.id}`)}
                         className="bg-white/80 rounded-xl overflow-hidden flex flex-col border-1 border-cafe-oscuro transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer"
                       >
                         <img
@@ -151,7 +152,7 @@ const Productos = () => {
                               return (
                                 <div className="flex gap-2 items-center mt-auto">
                                   <button
-                                    onClick={() => updateQuantity(producto.id, qty - 1)}
+                                    onClick={(e) => { e.stopPropagation(); updateQuantity(producto.id, qty - 1); }}
                                     className="px-3 py-2 bg-white border rounded-md hover:bg-gray-100"
                                     aria-label={`Disminuir cantidad de ${producto.nombre}`}
                                   >
@@ -159,7 +160,7 @@ const Productos = () => {
                                   </button>
                                   <span className="font-texto">{qty}</span>
                                   <button
-                                    onClick={() => updateQuantity(producto.id, qty + 1)}
+                                    onClick={(e) => { e.stopPropagation(); updateQuantity(producto.id, qty + 1); }}
                                     className="px-3 py-2 bg-white border rounded-md hover:bg-gray-100"
                                     aria-label={`Aumentar cantidad de ${producto.nombre}`}
                                   >
@@ -170,7 +171,7 @@ const Productos = () => {
                             }
                             return (
                               <button
-                                onClick={() => handleAddToCart(producto)}
+                                onClick={(e) => { e.stopPropagation(); handleAddToCart(producto); }}
                                 className="w-full mt-auto font-texto bg-cafe-oscuro text-cafe-claro px-4 py-2 rounded-xl hover:bg-cafe-oscuro/90 transition-all duration-300"
                               >
                                 Agregar al Carrito

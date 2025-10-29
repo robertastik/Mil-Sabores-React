@@ -9,6 +9,7 @@ import Profile from "./pages/Profile";
 import Productos from "./pages/Productos";
 import Blog from "./pages/Blog";
 import Checkout from "./pages/Checkout";
+import ProductDetail from "./pages/ProductDetail";
 import { CartProvider } from "./context/CartContext";
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/productos" element={<Productos />} />
+    <Route path="/producto/:id" element={<ProductDetail />} />
   <Route path="/checkout" element={<Checkout />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="*" element={<h1>404 - Página no encontrada</h1>} />
