@@ -8,18 +8,69 @@ export default function Profile() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [fechaNacimiento, setFechaNacimiento] = useState("");
+  const [preferencias, setPreferencias] = useState("");
   const [error, setError] = useState("");
   const [exito, setExito] = useState("");
   const [cargando, setCargando] = useState(false);
 
   useEffect(() => {
-    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    const normalizeEmail = (e) => (e || "").trim().toLowerCase();
+
+    let loggedInUser = null;
+    try {
+      loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    } catch (e) {
+      loggedInUser = null;
+    }
+
     if (!loggedInUser) {
       navigate("/login");
-    } else {
-      setUser(loggedInUser);
-      setName(loggedInUser.name);
+      return;
     }
+
+    // Normalize and derive missing flags for legacy users
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const normalizedEmail = normalizeEmail(loggedInUser.email);
+    const userIndex = users.findIndex((u) => normalizeEmail(u.email) === normalizedEmail);
+
+    const calcularEdad = (fechaStr) => {
+      if (!fechaStr) return null;
+      const nacimiento = new Date(fechaStr);
+      const hoy = new Date();
+      let edad = hoy.getFullYear() - nacimiento.getFullYear();
+      const m = hoy.getMonth() - nacimiento.getMonth();
+      if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
+        edad--;
+      }
+      return edad;
+    };
+
+    // ensure normalized email
+    loggedInUser.email = normalizedEmail;
+
+    // derive edad and isDuoc/hasFelices50 if missing
+    if (loggedInUser.fechaNacimiento && typeof loggedInUser.edad !== "number") {
+      loggedInUser.edad = calcularEdad(loggedInUser.fechaNacimiento);
+    }
+    if (typeof loggedInUser.isDuoc !== "boolean") {
+      loggedInUser.isDuoc = /@duocuc\.cl$/i.test(normalizedEmail);
+    }
+    if (typeof loggedInUser.hasFelices50 !== "boolean") {
+      loggedInUser.hasFelices50 = !!loggedInUser.hasFelices50;
+    }
+
+    // persist back to users list if found
+    if (userIndex > -1) {
+      users[userIndex] = { ...users[userIndex], ...loggedInUser };
+      localStorage.setItem("users", JSON.stringify(users));
+      localStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
+    }
+
+    setUser(loggedInUser);
+    setName(loggedInUser.name);
+    setFechaNacimiento(loggedInUser.fechaNacimiento || "");
+    setPreferencias(loggedInUser.preferencias || "");
   }, [navigate]);
 
   const validar = () => {
@@ -51,6 +102,8 @@ export default function Profile() {
           ...users[userIndex],
           name: name,
           password: password ? password : users[userIndex].password,
+          fechaNacimiento: fechaNacimiento || users[userIndex].fechaNacimiento,
+          preferencias: preferencias || users[userIndex].preferencias,
         };
 
         users[userIndex] = updatedUser;
@@ -108,6 +161,40 @@ export default function Profile() {
               value={user.email}
               disabled
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1" htmlFor="dob">
+              Fecha de Nacimiento
+            </label>
+            <input
+              className="w-full bg-cafe-oscuro/5 placeholder-cafe-oscuro/60 border border-cafe-oscuro/20 rounded-2xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cafe-oscuro"
+              type="date"
+              id="dob"
+              value={fechaNacimiento}
+              onChange={(e) => setFechaNacimiento(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1" htmlFor="prefs">
+              Preferencias (ej. sabores favoritos)
+            </label>
+            <input
+              className="w-full bg-cafe-oscuro/5 placeholder-cafe-oscuro/60 border border-cafe-oscuro/20 rounded-2xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cafe-oscuro"
+              type="text"
+              id="prefs"
+              value={preferencias}
+              onChange={(e) => setPreferencias(e.target.value)}
+            />
+          </div>
+
+          <div className="text-sm text-cafe-oscuro/80">
+            <p>Edad: {user.edad ?? "No registrada"}</p>
+            <p>
+              Beneficio DUOC: {user.isDuoc ? "Sí (torta gratis en tu cumpleaños)" : "No"}
+            </p>
+            <p>Cupon FELICES50 aplicado: {user.hasFelices50 ? "Sí" : "No"}</p>
           </div>
 
           <div>

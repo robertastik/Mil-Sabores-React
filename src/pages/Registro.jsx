@@ -6,6 +6,7 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [fechaNacimiento, setFechaNacimiento] = useState("");
+  const [preferencias, setPreferencias] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [cupon, setCupon] = useState("");
@@ -14,7 +15,8 @@ export default function Register() {
   const [mostrarBeneficioDuoc, setMostrarBeneficioDuoc] = useState(false);
 
   useEffect(() => {
-    setMostrarBeneficioDuoc(/@duoc\./i.test(email));
+    const norm = (email || "").trim().toLowerCase();
+    setMostrarBeneficioDuoc(/@duocuc\.cl$/i.test(norm));
   }, [email]);
 
   const validar = () => {
@@ -44,8 +46,9 @@ export default function Register() {
 
     // Simulate API call / DB check
     setTimeout(() => {
-      const users = JSON.parse(localStorage.getItem("users")) || [];
-      const userExists = users.find((user) => user.email === email);
+  const users = JSON.parse(localStorage.getItem("users")) || [];
+  const normalizedEmail = (email || "").trim().toLowerCase();
+  const userExists = users.find((user) => (user.email || "").trim().toLowerCase() === normalizedEmail);
 
       if (userExists) {
         setError("Este correo electrónico ya está registrado.");
@@ -53,14 +56,41 @@ export default function Register() {
         return;
       }
 
-      // NOTE: In a real app, you should hash the password before saving.
-      const newUser = { name, email, fechaNacimiento, password };
+     
+      // calcular edad
+      const calcularEdad = (fechaStr) => {
+        if (!fechaStr) return null;
+        const nacimiento = new Date(fechaStr);
+        const hoy = new Date();
+        let edad = hoy.getFullYear() - nacimiento.getFullYear();
+        const m = hoy.getMonth() - nacimiento.getMonth();
+        if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
+          edad--;
+        }
+        return edad;
+      };
+
+      const edad = calcularEdad(fechaNacimiento);
+      const isDuoc = /@duocuc\.cl$/i.test(normalizedEmail);
+      const hasFelices50 = (cupon || "").trim().toUpperCase() === "FELICES50";
+
+      const newUser = {
+        name,
+        email: normalizedEmail,
+        fechaNacimiento,
+        password,
+        edad,
+        isDuoc,
+        hasFelices50,
+        preferencias: preferencias || "",
+      };
       users.push(newUser);
       localStorage.setItem("users", JSON.stringify(users));
+      // también loguear al usuario creado para aplicar beneficios inmediatamente
+      localStorage.setItem("loggedInUser", JSON.stringify(newUser));
 
       setCargando(false);
-      // Redirect to login page after successful registration
-      navigate("/login");
+      navigate("/");
     }, 1000);
   };
 

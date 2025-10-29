@@ -1,13 +1,26 @@
 import { useMemo, useState, useEffect } from "react";
 import { productosPasteleria } from "../ProductosData";
+import { useCart } from "../context/CartContext";
+import { useNavigate } from "react-router-dom";
 
 const Productos = () => {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [showScrollButton, setShowScrollButton] = useState(false);
-
+  const [user, setUser] = useState(null);
+  const { addToCart, updateQuantity, removeFromCart, cartItems } = useCart();
+  const navigate = useNavigate();
+  
   useEffect(() => {
     const handleScroll = () => setShowScrollButton(window.scrollY > 300);
     window.addEventListener("scroll", handleScroll);
+
+    try {
+      const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+      setUser(loggedInUser);
+    } catch (error) {
+      setUser(null);
+    }
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -28,6 +41,14 @@ const Productos = () => {
       (p) => (p.categoria ?? p.category) === selectedCategory
     );
   }, [selectedCategory]);
+
+  const handleAddToCart = (producto) => {
+    if (!user) {
+      navigate("/login");
+    } else {
+      addToCart(producto);
+    }
+  };
 
   return (
     <div className="bg-cafe-blanco min-h-screen">
@@ -116,13 +137,46 @@ const Productos = () => {
                           alt={producto.nombre}
                           className="w-full h-40 md:h-48 object-cover"
                         />
-                        <div className="p-3 flex flex-col flex-grow">
+                        <div className="p-4 flex flex-col flex-grow">
                           <h2 className="font-subtitulo text-lg mb-1">
                             {producto.nombre}
                           </h2>
-                          <p className="font-texto text-base mt-auto text-left">
+                          <p className="font-texto text-lg mt-auto text-left mb-3">
                             ${producto.precio.toLocaleString("es-CL")}
                           </p>
+                          {(() => {
+                            const item = cartItems.find((i) => i.id === producto.id);
+                            const qty = item?.quantity ?? 0;
+                            if (qty > 0) {
+                              return (
+                                <div className="flex gap-2 items-center mt-auto">
+                                  <button
+                                    onClick={() => updateQuantity(producto.id, qty - 1)}
+                                    className="px-3 py-2 bg-white border rounded-md hover:bg-gray-100"
+                                    aria-label={`Disminuir cantidad de ${producto.nombre}`}
+                                  >
+                                    -
+                                  </button>
+                                  <span className="font-texto">{qty}</span>
+                                  <button
+                                    onClick={() => updateQuantity(producto.id, qty + 1)}
+                                    className="px-3 py-2 bg-white border rounded-md hover:bg-gray-100"
+                                    aria-label={`Aumentar cantidad de ${producto.nombre}`}
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              );
+                            }
+                            return (
+                              <button
+                                onClick={() => handleAddToCart(producto)}
+                                className="w-full mt-auto font-texto bg-cafe-oscuro text-cafe-claro px-4 py-2 rounded-xl hover:bg-cafe-oscuro/90 transition-all duration-300"
+                              >
+                                Agregar al Carrito
+                              </button>
+                            );
+                          })()}
                         </div>
                       </div>
                     ))}
@@ -143,13 +197,19 @@ const Productos = () => {
                   alt={producto.nombre}
                   className="w-full h-40 md:h-48 object-cover transition-transform duration-300 hover:scale-110"
                 />
-                <div className="p-3 flex flex-col flex-grow">
+                <div className="p-4 flex flex-col flex-grow">
                   <h2 className="font-subtitulo text-lg mb-1">
                     {producto.nombre}
                   </h2>
-                  <p className="font-texto text-base mt-auto text-left">
+                  <p className="font-texto text-lg mt-auto text-left mb-3">
                     ${producto.precio.toLocaleString("es-CL")}
                   </p>
+                  <button
+                    onClick={() => handleAddToCart(producto)}
+                    className="w-full mt-auto font-texto bg-cafe-oscuro text-cafe-claro px-4 py-2 rounded-xl hover:bg-cafe-oscuro/90 transition-all duration-300"
+                  >
+                    Agregar al Carrito
+                  </button>
                 </div>
               </div>
             ))}
@@ -170,11 +230,20 @@ const Productos = () => {
           title="Volver arriba"
           style={{ transformOrigin: "center" }}
         >
-          <img
-            src="src/assets/images/flecha-arriba.svg"
-            className="fill-cafe-oscuro"
-            alt=""
-          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 10l7-7m0 0l7 7m-7-7v18"
+            />
+          </svg>
         </button>
       </div>
     </div>

@@ -8,10 +8,12 @@ import Register from "./pages/Registro";
 import Profile from "./pages/Profile";
 import Productos from "./pages/Productos";
 import Blog from "./pages/Blog";
+import Checkout from "./pages/Checkout";
+import { CartProvider } from "./context/CartContext";
 
 export default function App() {
   return (
-    <>
+    <CartProvider>
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -20,10 +22,11 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/productos" element={<Productos />} />
+  <Route path="/checkout" element={<Checkout />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="*" element={<h1>404 - Página no encontrada</h1>} />
       </Routes>
       <Footer />
-    </>
+    </CartProvider>
   );
 }

@@ -180,7 +180,7 @@ export const productosPasteleria = [
     nombre: 'Torta pastelera',
     categoria: 'Tortas y Pasteles',
     descripcion: 'Torta rellena de crema pastelera y cubierta con frutas frescas o glaseado.',
-    precio: '8990',
+    precio: 8990,
     imagenUrl: 'https://i5.walmartimages.cl/asr/a1afe955-13cc-4f6b-94b2-8e608ad77570.0cbab0a9265430beeaf5a5598a443337.jpeg?null=&odnHeight=612&odnWidth=612&odnBg=FFFFFF'
   }
 ];
