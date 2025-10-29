@@ -11,11 +11,10 @@ export default function Home() {
         />
       </div>
       <div>
-        <span className="text-2xl text-cafe-oscuro font-texto flex justify-center items-center pt-8">
+        <span className="text-4xl text-cafe-oscuro font-subtitulo flex justify-center items-center pt-8">
           Productos destacados
         </span>
       </div>
     </section>
-    
   );
 }
