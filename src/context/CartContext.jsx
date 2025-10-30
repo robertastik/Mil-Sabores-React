@@ -55,7 +55,6 @@ export const CartProvider = ({ children }) => {
   };
 
   const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
-  // Aplicar descuentos basados en el usuario actualmente logueado
   const loggedInUser = (() => {
     try {
       const raw = JSON.parse(localStorage.getItem("loggedInUser")) || null;
@@ -63,11 +62,9 @@ export const CartProvider = ({ children }) => {
       const normalizeEmail = (e) => (e || "").trim().toLowerCase();
       raw.email = normalizeEmail(raw.email);
 
-      // try to hydrate missing fields from users list
       const users = JSON.parse(localStorage.getItem("users")) || [];
       const found = users.find((u) => normalizeEmail(u.email) === raw.email);
       if (found) {
-        // ensure numeric edad if fechaNacimiento exists
         if (!raw.edad && found.fechaNacimiento) {
           const nacimiento = new Date(found.fechaNacimiento);
           const hoy = new Date();
@@ -81,7 +78,6 @@ export const CartProvider = ({ children }) => {
         raw.isDuoc = typeof raw.isDuoc === "boolean" ? raw.isDuoc : /@duocuc\.cl$/i.test(raw.email);
         raw.hasFelices50 = typeof raw.hasFelices50 === "boolean" ? raw.hasFelices50 : !!found.hasFelices50;
 
-        // persist any updates back to storage
         const idx = users.findIndex((u) => normalizeEmail(u.email) === raw.email);
         if (idx > -1) {
           users[idx] = { ...users[idx], ...raw };
@@ -99,14 +95,13 @@ export const CartProvider = ({ children }) => {
   let finalDiscountPercent = 0;
   if (loggedInUser) {
     if (typeof loggedInUser.edad === "number" && loggedInUser.edad >= 50) {
-      finalDiscountPercent += 50; // 50% para mayores de 50
+      finalDiscountPercent += 50 
     }
     if (loggedInUser.hasFelices50) {
-      finalDiscountPercent += 10; // 10% extra por cupón
+      finalDiscountPercent += 10;
     }
   }
 
-  // calcular si hoy es cumpleaños y si es de duoc
   const hasFreeBirthdayCake = (() => {
     if (!loggedInUser || !loggedInUser.isDuoc || !loggedInUser.fechaNacimiento)
       return false;
