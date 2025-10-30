@@ -2,7 +2,7 @@ import HeroImage from "../assets/images/hero-image.jpg";
 
 export default function Home() {
   return (
-    <section className="h-screen bg-cafe-claro">
+    <section className="h-screen bg-cafe-blanco">
       <div className="relative h-120 w-full overflow-hidden">
         <img
           src={HeroImage}

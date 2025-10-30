@@ -81,7 +81,7 @@ export default function Profile() {
         backgroundPosition: "center",
       }}
     >
-      <div className="relative w-full max-w-lg mx-4 bg-cafe-claro text-cafe-oscuro rounded-3xl p-8 shadow-2xl border-1 border-cafe-oscuro">
+      <div className="relative w-full max-w-lg mx-4 bg-cafe-blanco text-cafe-oscuro rounded-3xl p-8 shadow-2xl border-1 border-cafe-oscuro">
         <h2 className="font-subtitulo text-4xl text-center mb-6">
           Modificar Perfil
         </h2>

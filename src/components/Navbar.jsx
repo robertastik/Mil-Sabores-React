@@ -44,7 +44,7 @@ export default function Navbar() {
             </li>
             <li>
               <NavLink
-                to="/comunidad"
+                to="/blog"
                 className="text-cafe-oscuro hover:underline font-texto"
               >
                 Comunidad
