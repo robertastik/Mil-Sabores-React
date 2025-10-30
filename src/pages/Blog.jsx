@@ -137,7 +137,6 @@ export default function Blog() {
   return (
     <div className="bg-cafe-blanco min-h-screen">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 text-cafe-oscuro">
-        {/* Header */}
         <div className="mb-12 pb-8 border-b-1 border-cafe-oscuro/30">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
@@ -152,7 +151,7 @@ export default function Blog() {
               onClick={() => setShowForm(!showForm)}
               className="font-texto bg-cafe-oscuro text-cafe-claro px-6 py-3 border-1 border-transparent
                   rounded-xl hover:bg-cafe-blanco
-                hover:text-cafe-oscuro hover:border-cafe-oscuro transition-all duration-300 hover:cursor-pointer hover:shadow-lg"
+                hover:text-cafe-oscuro hover:border-cafe-oscuro transition-all duration-300 hover:cursor-pointer hover:"
             >
               {showForm ? "Cancelar" : "+ Nueva Publicación"}
             </button>
@@ -184,7 +183,7 @@ export default function Blog() {
 
         {/* New Post Form */}
         {showForm && (
-          <div className="mb-8 bg-white/80 border-1 border-cafe-oscuro rounded-xl p-6 shadow-lg animate-fadeIn">
+          <div className="mb-8 bg-cafe-claro border-1 border-cafe-oscuro rounded-2xl p-6  animate-fadeIn">
             <h2 className="font-subtitulo text-2xl mb-4">
               Crear Nueva Publicación
             </h2>
@@ -288,7 +287,7 @@ export default function Blog() {
             filteredPosts.map((post) => (
               <div
                 key={post.id}
-                className="bg-white/80 border-1 border-cafe-oscuro rounded-xl p-6 shadow-md hover:shadow-xl transition-all
+                className="bg-white/80 border-1 border-cafe-oscuro/30 rounded-xl p-6 hover:border-cafe-oscuro transition-all
                     duration-300"
               >
                 <div className="flex justify-between items-start mb-3">
@@ -334,8 +333,9 @@ export default function Blog() {
                 <div className="flex items-center gap-2 pt-3 border-t-1 border-cafe-oscuro/10">
                   <button
                     onClick={() => handleLike(post.id)}
-                    className="flex items-center gap-2 font-texto text-sm px-4 py-2 rounded-xl border-1 border-transparent bg-cafe-claro hover:border-cafe-oscuro transition-all hover:cursor-pointer duration-300 hover:scale-105"
+                    className="flex items-center gap-2 font-texto text-sm px-4 py-2 rounded-xl border-1 border-transparent bg-cafe-claro hover:border-cafe-oscuro transition-all hover:cursor-pointer duration-300 hover:scale-103"
                   >
+                    <span className="font-semibold">{post.likes}</span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-5 w-5"
@@ -344,8 +344,6 @@ export default function Blog() {
                     >
                       <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
                     </svg>
-                    <span className="font-semibold">{post.likes}</span>
-                    <span>Me gusta</span>
                   </button>
                 </div>
               </div>
@@ -356,7 +354,7 @@ export default function Blog() {
         {/* Scroll to top button */}
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className={`fixed bottom-4 right-4 bg-cafe-oscuro px-4 py-4 border-1 m-4 border-transparent rounded-full shadow-lg
+          className={`fixed bottom-4 right-4 bg-cafe-oscuro px-4 py-4 border-1 m-4 border-transparent rounded-full 
            hover:bg-cafe-claro hover:text-cafe-oscuro hover:border-cafe-oscuro hover:cursor-pointer
            transform-gpu transition-all duration-500 ease-in-out hover:scale-104
            ${

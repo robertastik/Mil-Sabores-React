@@ -7,9 +7,9 @@ const Productos = () => {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [user, setUser] = useState(null);
-  const { addToCart, updateQuantity, removeFromCart, cartItems } = useCart();
+  const { addToCart, updateQuantity, cartItems } = useCart();
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     const handleScroll = () => setShowScrollButton(window.scrollY > 300);
     window.addEventListener("scroll", handleScroll);
@@ -131,53 +131,34 @@ const Productos = () => {
                       <div
                         key={producto.id}
                         onClick={() => navigate(`/producto/${producto.id}`)}
-                        className="bg-white/80 rounded-xl overflow-hidden flex flex-col border-1 border-cafe-oscuro transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer"
+                        className="bg-white rounded-lg overflow-hidden cursor-pointer border border-cafe-oscuro/20 hover:border-cafe-oscuro transition-all duration-300"
                       >
                         <img
                           src={producto.imagenUrl}
                           alt={producto.nombre}
-                          className="w-full h-40 md:h-48 object-cover"
+                          className="w-full h-48 object-cover"
                         />
-                        <div className="p-4 flex flex-col flex-grow">
-                          <h2 className="font-subtitulo text-lg mb-1">
+                        <div className="p-4">
+                          <h3 className="text-lg font-subtitulo mb-2 text-cafe-oscuro truncate">
                             {producto.nombre}
-                          </h2>
-                          <p className="font-texto text-lg mt-auto text-left mb-3">
-                            ${producto.precio.toLocaleString("es-CL")}
+                          </h3>
+                          <p className="text-sm text-cafe-oscuro/70 mb-3 line-clamp-2">
+                            {producto.descripcion}
                           </p>
-                          {(() => {
-                            const item = cartItems.find((i) => i.id === producto.id);
-                            const qty = item?.quantity ?? 0;
-                            if (qty > 0) {
-                              return (
-                                <div className="flex gap-2 items-center mt-auto">
-                                  <button
-                                    onClick={(e) => { e.stopPropagation(); updateQuantity(producto.id, qty - 1); }}
-                                    className="px-3 py-2 bg-white border rounded-md hover:bg-gray-100"
-                                    aria-label={`Disminuir cantidad de ${producto.nombre}`}
-                                  >
-                                    -
-                                  </button>
-                                  <span className="font-texto">{qty}</span>
-                                  <button
-                                    onClick={(e) => { e.stopPropagation(); updateQuantity(producto.id, qty + 1); }}
-                                    className="px-3 py-2 bg-white border rounded-md hover:bg-gray-100"
-                                    aria-label={`Aumentar cantidad de ${producto.nombre}`}
-                                  >
-                                    +
-                                  </button>
-                                </div>
-                              );
-                            }
-                            return (
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handleAddToCart(producto); }}
-                                className="w-full mt-auto font-texto bg-cafe-oscuro text-cafe-claro px-4 py-2 rounded-xl hover:bg-cafe-oscuro/90 transition-all duration-300"
-                              >
-                                Agregar al Carrito
-                              </button>
-                            );
-                          })()}
+                          <div className="flex items-center justify-between">
+                            <span className="text-xl font-bold text-cafe-oscuro">
+                              ${producto.precio.toLocaleString("es-CL")}
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddToCart(producto);
+                              }}
+                              className="px-4 pb-2 pt-1 text-center bg-cafe-oscuro text-cafe-claro rounded-xl hover:bg-cafe-claro hover:text-cafe-oscuro border border-transparent hover:border-cafe-oscuro transition-colors duration-300 hover:cursor-pointer"
+                            >
+                              Agregar
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -191,26 +172,35 @@ const Productos = () => {
             {productosFiltrados.map((producto) => (
               <div
                 key={producto.id}
-                className="bg-white/80 rounded-xl overflow-hidden flex flex-col border-1 border-cafe-oscuro transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-cafe-oscuro/70 cursor-pointer"
+                onClick={() => navigate(`/producto/${producto.id}`)}
+                className="bg-white rounded-lg overflow-hidden cursor-pointer border border-cafe-oscuro/20 hover:border-cafe-oscuro transition-all duration-300"
               >
                 <img
                   src={producto.imagenUrl}
                   alt={producto.nombre}
-                  className="w-full h-40 md:h-48 object-cover transition-transform duration-300 hover:scale-110"
+                  className="w-full h-48 object-cover"
                 />
-                <div className="p-4 flex flex-col flex-grow">
-                  <h2 className="font-subtitulo text-lg mb-1">
+                <div className="p-4">
+                  <h3 className="text-lg font-subtitulo mb-2 text-cafe-oscuro truncate">
                     {producto.nombre}
-                  </h2>
-                  <p className="font-texto text-lg mt-auto text-left mb-3">
-                    ${producto.precio.toLocaleString("es-CL")}
+                  </h3>
+                  <p className="text-sm text-cafe-oscuro/70 mb-3 line-clamp-2">
+                    {producto.descripcion}
                   </p>
-                  <button
-                    onClick={() => handleAddToCart(producto)}
-                    className="w-full mt-auto font-texto bg-cafe-oscuro text-cafe-claro px-4 py-2 rounded-xl hover:bg-cafe-oscuro/90 transition-all duration-300"
-                  >
-                    Agregar al Carrito
-                  </button>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xl font-bold text-cafe-oscuro">
+                      ${producto.precio.toLocaleString("es-CL")}
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(producto);
+                      }}
+                      className="px-4 pb-2 pt-1 text-center bg-cafe-oscuro text-cafe-claro rounded-xl hover:bg-cafe-claro hover:text-cafe-oscuro border border-transparent hover:border-cafe-oscuro transition-colors duration-300 hover:cursor-pointer"
+                    >
+                      Agregar
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
