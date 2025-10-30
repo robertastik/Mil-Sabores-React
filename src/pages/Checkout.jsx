@@ -8,10 +8,8 @@ export default function Checkout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Simula procesamiento de pago
     const t = setTimeout(() => {
       setLoading(false);
-      // limpiar carrito después del pago
       clearCart();
     }, 2000);
     return () => clearTimeout(t);

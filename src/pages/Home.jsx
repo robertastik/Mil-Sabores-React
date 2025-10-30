@@ -48,12 +48,12 @@ function ProductCarousel({ title, products }) {
     <div className="mb-12">
       <h2 className="text-3xl text-cafe-oscuro font-subtitulo mb-6">{title}</h2>
       <div className="relative group">
-        {/* Left shadow gradient */}
+
         {showLeftArrow && (
           <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-cafe-blanco to-transparent z-[5] pointer-events-none" />
         )}
 
-        {/* Left arrow button */}
+
         {showLeftArrow && (
           <button
             onClick={() => scroll("left")}
@@ -199,7 +199,7 @@ export default function Home() {
         ))}
       </div>
 
-      {/* Scroll to top button */}
+
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         className={`fixed bottom-4 right-4 bg-cafe-oscuro px-4 py-4 border-1 m-4 border-transparent rounded-full shadow-lg group

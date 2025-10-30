@@ -29,7 +29,6 @@ export default function Profile() {
       return;
     }
 
-    // Normalize and derive missing flags for legacy users
     const users = JSON.parse(localStorage.getItem("users")) || [];
     const normalizedEmail = normalizeEmail(loggedInUser.email);
     const userIndex = users.findIndex((u) => normalizeEmail(u.email) === normalizedEmail);
@@ -46,10 +45,8 @@ export default function Profile() {
       return edad;
     };
 
-    // ensure normalized email
     loggedInUser.email = normalizedEmail;
 
-    // derive edad and isDuoc/hasFelices50 if missing
     if (loggedInUser.fechaNacimiento && typeof loggedInUser.edad !== "number") {
       loggedInUser.edad = calcularEdad(loggedInUser.fechaNacimiento);
     }
@@ -60,7 +57,6 @@ export default function Profile() {
       loggedInUser.hasFelices50 = !!loggedInUser.hasFelices50;
     }
 
-    // persist back to users list if found
     if (userIndex > -1) {
       users[userIndex] = { ...users[userIndex], ...loggedInUser };
       localStorage.setItem("users", JSON.stringify(users));

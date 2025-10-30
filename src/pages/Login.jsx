@@ -28,7 +28,6 @@ export default function Login() {
       return;
     }
     setCargando(true);
-    // Simulate API call
     setTimeout(() => {
       const users = JSON.parse(localStorage.getItem("users")) || [];
       const user = users.find(

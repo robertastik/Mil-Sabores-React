@@ -8,7 +8,6 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { addToCart, cartItems, updateQuantity } = useCart();
 
-  // Scroll to top when product ID changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [id]);

@@ -23,7 +23,6 @@ export default function Blog() {
     if (savedPosts) {
       setPosts(JSON.parse(savedPosts));
     } else {
-      // Sample posts
       const samplePosts = [
         {
           id: 1,
@@ -61,7 +60,7 @@ export default function Blog() {
     }
   }, []);
 
-  // Save posts to localStorage whenever they change
+  
   useEffect(() => {
     if (posts.length > 0) {
       localStorage.setItem("communityPosts", JSON.stringify(posts));
@@ -181,7 +180,7 @@ export default function Blog() {
           </div>
         </div>
 
-        {/* New Post Form */}
+        {}
         {showForm && (
           <div className="mb-8 bg-cafe-claro border-1 border-cafe-oscuro rounded-2xl p-6  animate-fadeIn">
             <h2 className="font-subtitulo text-2xl mb-4">
@@ -272,7 +271,7 @@ export default function Blog() {
           </div>
         )}
 
-        {/* Posts Feed */}
+        {}
         <div className="space-y-6">
           {filteredPosts.length === 0 ? (
             <div className="text-center py-12 bg-white/50 rounded-xl border-1 border-dashed border-cafe-oscuro/30">
@@ -351,7 +350,7 @@ export default function Blog() {
           )}
         </div>
 
-        {/* Scroll to top button */}
+        {}
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className={`fixed bottom-4 right-4 bg-cafe-oscuro px-4 py-4 border-1 m-4 border-transparent rounded-full 

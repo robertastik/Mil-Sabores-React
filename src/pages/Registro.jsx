@@ -44,7 +44,6 @@ export default function Register() {
     }
     setCargando(true);
 
-    // Simulate API call / DB check
     setTimeout(() => {
   const users = JSON.parse(localStorage.getItem("users")) || [];
   const normalizedEmail = (email || "").trim().toLowerCase();
@@ -57,7 +56,7 @@ export default function Register() {
       }
 
      
-      // calcular edad
+
       const calcularEdad = (fechaStr) => {
         if (!fechaStr) return null;
         const nacimiento = new Date(fechaStr);

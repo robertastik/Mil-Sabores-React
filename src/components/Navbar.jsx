@@ -78,7 +78,6 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", onDoc);
   }, [cartDropdownOpen]);
 
-  // compose tiles -> dataURL
   useEffect(() => {
     if (!showMap || !shipmentCoords) return;
     const [lat, lng] = shipmentCoords;
@@ -304,7 +303,6 @@ export default function Navbar() {
               />
             )}
 
-            {/* Confirm delivery button + thank you message */}
             {!thankYouVisible ? (
               <div className="mt-3 text-center">
                 <button
@@ -319,10 +317,7 @@ export default function Navbar() {
                         localStorage.removeItem("cartItems");
                       }
                     } catch (e) {
-                      // ignore
                     }
-
-                    // Reset local UI state so the cart flow restarts from zero
                     try {
                       setProcessedReceipt(null);
                     } catch (e) {}
@@ -334,7 +329,6 @@ export default function Navbar() {
                     setMapGenerating(false);
 
                     setThankYouVisible(true);
-                    // Small delay to keep the message visible then close dropdown
                     setTimeout(() => {
                       setThankYouVisible(false);
                       setCartDropdownOpen(false);
@@ -359,14 +353,14 @@ export default function Navbar() {
   return (
     <nav className="bg-cafe-claro p-6 z-20 sticky top-0 border-b-1 border-cafe-oscuro shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)]">
       <div className="grid grid-cols-3 items-center gap-4">
-        {/* Left section - Logo */}
+
         <div className="flex justify-start">
           <NavLink to="/" className="text-cafe-oscuro text-5xl font-titulo">
             Mil Sabores
           </NavLink>
         </div>
 
-        {/* Center section - Navigation Links */}
+
         <div className="flex justify-center">
           <ul className="flex gap-8 items-center">
             <li>
@@ -396,7 +390,7 @@ export default function Navbar() {
           </ul>
         </div>
 
-        {/* Right section - User/Auth */}
+
         <div className="flex justify-end relative">
           {user ? (
             <div className="flex items-center gap-4">
