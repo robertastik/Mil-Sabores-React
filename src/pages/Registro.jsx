@@ -6,7 +6,7 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [fechaNacimiento, setFechaNacimiento] = useState("");
-  const [preferencias, setPreferencias] = useState("");
+  const [preferencias] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [cupon, setCupon] = useState("");
@@ -45,17 +45,17 @@ export default function Register() {
     setCargando(true);
 
     setTimeout(() => {
-  const users = JSON.parse(localStorage.getItem("users")) || [];
-  const normalizedEmail = (email || "").trim().toLowerCase();
-  const userExists = users.find((user) => (user.email || "").trim().toLowerCase() === normalizedEmail);
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const normalizedEmail = (email || "").trim().toLowerCase();
+      const userExists = users.find(
+        (user) => (user.email || "").trim().toLowerCase() === normalizedEmail,
+      );
 
       if (userExists) {
         setError("Este correo electrónico ya está registrado.");
         setCargando(false);
         return;
       }
-
-     
 
       const calcularEdad = (fechaStr) => {
         if (!fechaStr) return null;
@@ -85,7 +85,6 @@ export default function Register() {
       };
       users.push(newUser);
       localStorage.setItem("users", JSON.stringify(users));
-      // también loguear al usuario creado para aplicar beneficios inmediatamente
       localStorage.setItem("loggedInUser", JSON.stringify(newUser));
 
       setCargando(false);

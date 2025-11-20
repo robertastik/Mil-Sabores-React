@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
 export default function Checkout() {
-  const { cartItems, subtotal, discountAmount, totalPrice, clearCart } = useCart();
+  const { cartItems, subtotal, discountAmount, totalPrice, clearCart } =
+    useCart();
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -13,13 +14,15 @@ export default function Checkout() {
       clearCart();
     }, 2000);
     return () => clearTimeout(t);
-  }, []);
+  }, [clearCart]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cafe-claro">
         <div className="text-center p-8 bg-white rounded-2xl shadow-lg">
-          <h2 className="text-2xl font-subtitulo mb-4">Estamos procesando el pago</h2>
+          <h2 className="text-2xl font-subtitulo mb-4">
+            Estamos procesando el pago
+          </h2>
           <p className="text-cafe-oscuro/80">Por favor espera un momento...</p>
         </div>
       </div>
@@ -32,16 +35,25 @@ export default function Checkout() {
         <h2 className="font-subtitulo text-3xl mb-6">Boleta de Compra</h2>
         <div className="mb-4">
           {cartItems.length === 0 ? (
-            <p className="text-cafe-oscuro">No hay items en el carrito (se limpió tras el pago).</p>
+            <p className="text-cafe-oscuro">
+              No hay items en el carrito (se limpió tras el pago).
+            </p>
           ) : (
             <div>
               {cartItems.map((item) => (
-                <div key={item.id} className="flex justify-between py-2 border-b-1">
+                <div
+                  key={item.id}
+                  className="flex justify-between py-2 border-b-1"
+                >
                   <div>
-                    <p className="font-subtitulo">{item.nombre} x{item.quantity}</p>
+                    <p className="font-subtitulo">
+                      {item.nombre} x{item.quantity}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-texto">${(item.precio * item.quantity).toLocaleString("es-CL")}</p>
+                    <p className="font-texto">
+                      ${(item.precio * item.quantity).toLocaleString("es-CL")}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -65,7 +77,12 @@ export default function Checkout() {
         </div>
 
         <div className="mt-6 flex gap-4">
-          <button onClick={() => navigate('/')} className="px-4 py-2 rounded-xl bg-cafe-oscuro text-cafe-claro">Volver al inicio</button>
+          <button
+            onClick={() => navigate("/")}
+            className="px-4 py-2 rounded-xl bg-cafe-oscuro text-cafe-claro"
+          >
+            Volver al inicio
+          </button>
         </div>
       </div>
     </section>

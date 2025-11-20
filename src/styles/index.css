@@ -16,12 +16,12 @@
 @import "tailwindcss";
 
 @theme {
-    --font-texto: Inter,'sans-serif';
-    --font-titulo: Pacifico,'cursive';
-    --font-subtitulo: PlayfairDisplay,'serif';
+    --font-texto: Inter, "sans-serif";
+    --font-titulo: Pacifico, "cursive";
+    --font-subtitulo: PlayfairDisplay, "serif";
 
     --color-cafe-claro: #fff5e1;
-    --color-cafe-blanco: #FFF9ED;
+    --color-cafe-blanco: #fff9ed;
     --color-cafe-negro: #1d1300;
     --color-rosa: #ffc0cb;
     --color-cafe-oscuro: #5d4037;
@@ -31,7 +31,6 @@ html {
     scroll-behavior: smooth;
 }
 
-/* Hide scrollbar for carousel */
 .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -41,7 +40,6 @@ html {
     display: none;
 }
 
-/* Line clamp utility */
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;

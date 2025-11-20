@@ -1,7 +1,7 @@
+/* eslint-disable no-unused-vars */
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import HeroImage from "../assets/images/hero-image.jpg";
-import { productosPasteleria } from "../ProductosData";
 import { useCart } from "../context/CartContext";
 
 function ProductCarousel({ title, products }) {
@@ -48,11 +48,9 @@ function ProductCarousel({ title, products }) {
     <div className="mb-12">
       <h2 className="text-3xl text-cafe-oscuro font-subtitulo mb-6">{title}</h2>
       <div className="relative group">
-
         {showLeftArrow && (
           <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-cafe-blanco to-transparent z-[5] pointer-events-none" />
         )}
-
 
         {showLeftArrow && (
           <button
@@ -79,15 +77,12 @@ function ProductCarousel({ title, products }) {
           ref={carouselRef}
           onScroll={checkScroll}
           className="flex overflow-x-auto pb-16 gap-6 scrollbar-hide scroll-smooth border-b-1 border-dashed border-cafe-oscuro/40"
-          style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {products.map((producto) => (
             <div
-              key={producto.id}
-              onClick={() => navigate(`/producto/${producto.id}`)}
+              key={producto.id_prod}
+              onClick={() => navigate(`/producto/${producto.id_prod}`)}
               className="flex-shrink-0 w-72 bg-white rounded-lg overflow-hidden cursor-pointer border-1 border-cafe-oscuro/20 hover:border-cafe-oscuro transition-all duration-300"
             >
               <img
@@ -95,6 +90,7 @@ function ProductCarousel({ title, products }) {
                 alt={producto.nombre}
                 className="w-full h-48 object-cover"
               />
+
               <div className="p-4">
                 <h3 className="text-lg font-subtitulo mb-2 text-cafe-oscuro truncate">
                   {producto.nombre}
@@ -104,11 +100,13 @@ function ProductCarousel({ title, products }) {
                 </p>
                 <div className="flex items-center justify-between">
                   <span className="text-xl font-bold text-cafe-oscuro">
-                    ${producto.precio.toLocaleString("es-CL")}
+                    {producto.precio != null
+                      ? `$${Number(producto.precio).toLocaleString("es-CL")}`
+                      : "—"}
                   </span>
                   <button
                     onClick={(e) => handleAddToCart(e, producto)}
-                    className="px-4 pb-2 pt-1 text-center bg-cafe-oscuro text-cafe-claro rounded-xl hover:bg-cafe-claro hover:text-cafe-oscuro border border-transparent hover:border-cafe-oscuro transition-colors duration-300 hover:cursor-pointer"
+                    className="px-4 pb-2 pt-1 text-center bg-cafe-oscuro text-cafe-claro rounded-xl hover:bg-cafe-claro hover:text-cafe-oscuro border border-transparent hover:border-cafe-oscuro transition-colors duration-300"
                   >
                     Agregar
                   </button>
@@ -150,18 +148,53 @@ function ProductCarousel({ title, products }) {
 export default function Home() {
   const [showScrollButton, setShowScrollButton] = useState(false);
 
+  // NUEVO:
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const handleScroll = () => setShowScrollButton(window.scrollY > 300);
+    fetch("http://localhost:8080/api/productos")
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setProductos(data);
+        } else {
+          console.error("Expected productos array but received:", data);
+          setProductos([]);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch productos:", err);
+        setProductos([]);
+        setLoading(false);
+      });
+  }, []);
+
+  const handleScroll = () => setShowScrollButton(window.scrollY > 300);
+
+  useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const categorias = [...new Set(productosPasteleria.map((p) => p.categoria))];
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-cafe-oscuro text-3xl">
+        Cargando productos...
+      </div>
+    );
+  }
+
+  const categorias = [...new Set(productos.map((p) => p.categoria))];
 
   const productosPorCategoria = categorias.reduce((acc, categoria) => {
-    acc[categoria] = productosPasteleria.filter(
-      (p) => p.categoria === categoria
-    );
+    acc[categoria] = productos.filter((p) => p.categoria === categoria);
     return acc;
   }, {});
 
@@ -199,7 +232,6 @@ export default function Home() {
         ))}
       </div>
 
-
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         className={`fixed bottom-4 right-4 bg-cafe-oscuro px-4 py-4 border-1 m-4 border-transparent rounded-full shadow-lg group
@@ -211,8 +243,6 @@ export default function Home() {
              : "opacity-0 translate-y-4 pointer-events-none"
          }`}
         aria-label="Volver arriba"
-        title="Volver arriba"
-        style={{ transformOrigin: "center" }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

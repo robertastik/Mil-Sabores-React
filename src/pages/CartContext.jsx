@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 
 const CartContext = createContext();
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
@@ -26,7 +27,7 @@ export const CartProvider = ({ children }) => {
         return prevItems.map((item) =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
-            : item
+            : item,
         );
       }
       return [...prevItems, { ...product, quantity: 1 }];
@@ -35,7 +36,7 @@ export const CartProvider = ({ children }) => {
 
   const removeFromCart = (productId) => {
     setCartItems((prevItems) =>
-      prevItems.filter((item) => item.id !== productId)
+      prevItems.filter((item) => item.id !== productId),
     );
   };
 
@@ -45,7 +46,7 @@ export const CartProvider = ({ children }) => {
         return prevItems.filter((item) => item.id !== productId);
       }
       return prevItems.map((item) =>
-        item.id === productId ? { ...item, quantity } : item
+        item.id === productId ? { ...item, quantity } : item,
       );
     });
   };
@@ -57,7 +58,7 @@ export const CartProvider = ({ children }) => {
   const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.precio * item.quantity,
-    0
+    0,
   );
 
   const value = {
