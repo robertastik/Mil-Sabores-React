@@ -4,7 +4,7 @@ import corazonLineart from "../assets/images/corazon-lineart.svg";
 export default function About() {
   return (
     <section
-      className="min-h-screen bg-cafe-claro flex flex-col items-center justify-center py-16 px-4 sm:px-6 lg:px-8"
+      className="min-h-screen flex flex-col items-center justify-center py-16 px-4 sm:px-6 lg:px-8"
       style={{
         backgroundImage: `url(${hero})`,
         backgroundSize: "cover",
@@ -12,7 +12,7 @@ export default function About() {
         backgroundAttachment: "fixed",
       }}
     >
-      <div className="w-full max-w-4xl mx-auto bg-cafe-claro/90 text-cafe-oscuro rounded-3xl p-8 md:p-12 shadow-2xl border-1 border-cafe-oscuro">
+      <div className="w-full max-w-4xl mx-auto bg-cafe-blanco/90 text-cafe-oscuro rounded-3xl p-8 md:p-12 shadow-2xl border-1 border-cafe-oscuro">
         <h1 className="font-subtitulo text-5xl md:text-6xl text-center mb-8">
           Sobre Nosotros
         </h1>

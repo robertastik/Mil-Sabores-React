@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import hero from "../assets/images/hero-image.jpg";
+import { useAuth } from '../context/AuthContext.jsx'; 
+
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth(); 
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -27,30 +31,32 @@ export default function Login() {
       setError(v);
       return;
     }
+    
     setCargando(true);
-    setTimeout(() => {
-      const users = JSON.parse(localStorage.getItem("users")) || [];
-      const user = users.find(
-        (user) => user.email === email && user.password === password
-      );
+    
+    try {
+        const exito = await login(email, password); 
 
-      if (user) {
-        localStorage.setItem("loggedInUser", JSON.stringify(user));
-        navigate("/");
-      } else {
-        setError("Correo electrónico o contraseña incorrectos.");
-      }
-      setCargando(false);
-    }, 1000);
+        if (exito) {
+            navigate("/");
+        } else {
+            setError("Correo electrónico o contraseña incorrectos.");
+        }
+    } catch (err) {
+        console.error("Error de autenticación o conexión:", err);
+        setError("Error de conexión con el servidor. Inténtalo de nuevo.");
+    } finally {
+        setCargando(false);
+    }
   };
 
   return (
     <section
       className="min-h-screen bg-cafe-claro flex items-center justify-center relative overflow-hidden"
       style={{
-        backgroundImage: `url(${hero})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+      backgroundImage: `url(${hero})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
       }}
     >
       <div className="relative z-10 w-full max-w-md mx-4 bg-cafe-claro text-cafe-oscuro rounded-3xl p-8 shadow-2xl border-1 border-cafe-oscuro">
@@ -98,7 +104,7 @@ export default function Login() {
             />
           </div>
           <button
-            className="w-full  text-cafe-oscuro rounded-2xl px-4 py-2 border-1 border-cafe-oscuro hover:bg-cafe-oscuro hover:cursor-pointer hover:text-cafe-claro transition-all duration-200"
+            className="w-full text-cafe-oscuro rounded-2xl px-4 py-2 border-1 border-cafe-oscuro hover:bg-cafe-oscuro hover:cursor-pointer hover:text-cafe-claro transition-all duration-200"
             type="submit"
             disabled={cargando}
           >
