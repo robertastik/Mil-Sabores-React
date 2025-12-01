@@ -1,14 +1,18 @@
 import { useState, useEffect } from "react";
+import { getPosts, createPost } from "../services/PostService";
+import { useAuth } from "../context/AuthContext";
 
 export default function Blog() {
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [filterCategory, setFilterCategory] = useState("Todos");
+  const [submitting, setSubmitting] = useState(false);
+  const { user, isAuthenticated } = useAuth();
   const [newPost, setNewPost] = useState({
     titulo: "",
     contenido: "",
-    autor: "",
     categoria: "General",
   });
 
@@ -19,53 +23,19 @@ export default function Blog() {
   }, []);
 
   useEffect(() => {
-    const savedPosts = localStorage.getItem("communityPosts");
-    if (savedPosts) {
-      setPosts(JSON.parse(savedPosts));
-    } else {
-      const samplePosts = [
-        {
-          id: 1,
-          titulo: "¡Bienvenidos a nuestra comunidad!",
-          contenido:
-            "Estamos emocionados de abrir este espacio para compartir recetas, tips de repostería y experiencias con nuestros productos. ¡Esperamos ver sus creaciones!",
-          autor: "Mil Sabores",
-          categoria: "Anuncios",
-          fecha: new Date().toISOString(),
-          likes: 15,
-        },
-        {
-          id: 2,
-          titulo: "Mi experiencia con las tortas de chocolate",
-          contenido:
-            "¡Probé la torta de chocolate de Mil Sabores y quedé encantada! El equilibrio perfecto entre dulce y suave. Perfecta para cualquier celebración.",
-          autor: "María González",
-          categoria: "Reseñas",
-          fecha: new Date(Date.now() - 86400000).toISOString(),
-          likes: 8,
-        },
-        {
-          id: 3,
-          titulo: "Tips para decorar cupcakes en casa",
-          contenido:
-            "Después de años decorando cupcakes, aquí van mis mejores consejos: usar manga pastelera con boquilla de estrella, dejar enfriar completamente antes de decorar, y no tener miedo de experimentar con colores.",
-          autor: "Carlos Ramírez",
-          categoria: "Recetas y Tips",
-          fecha: new Date(Date.now() - 172800000).toISOString(),
-          likes: 23,
-        },
-      ];
-      setPosts(samplePosts);
-      localStorage.setItem("communityPosts", JSON.stringify(samplePosts));
-    }
+    const fetchPosts = async () => {
+      try {
+        const data = await getPosts();
+        setPosts(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+        setPosts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPosts();
   }, []);
-
-  
-  useEffect(() => {
-    if (posts.length > 0) {
-      localStorage.setItem("communityPosts", JSON.stringify(posts));
-    }
-  }, [posts]);
 
   const categories = [
     "Todos",
@@ -76,30 +46,41 @@ export default function Blog() {
     "General",
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (newPost.titulo && newPost.contenido && newPost.autor) {
-      const post = {
-        id: Date.now(),
-        ...newPost,
-        fecha: new Date().toISOString(),
-        likes: 0,
-      };
-      setPosts([post, ...posts]);
-      setNewPost({
-        titulo: "",
-        contenido: "",
-        autor: "",
-        categoria: "General",
-      });
-      setShowForm(false);
+    if (!isAuthenticated) {
+      alert("Debes iniciar sesión para publicar.");
+      return;
+    }
+    if (newPost.titulo && newPost.contenido) {
+      setSubmitting(true);
+      try {
+        const postData = {
+          titulo: newPost.titulo,
+          contenido: newPost.contenido,
+          categoria: newPost.categoria,
+        };
+        const createdPost = await createPost(postData);
+        setPosts([createdPost, ...posts]);
+        setNewPost({
+          titulo: "",
+          contenido: "",
+          categoria: "General",
+        });
+        setShowForm(false);
+      } catch (error) {
+        console.error("Error creating post:", error);
+        alert("Error al crear la publicación. Inténtalo de nuevo.");
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 
   const handleLike = (postId) => {
     setPosts(
       posts.map((post) =>
-        post.id === postId ? { ...post, likes: post.likes + 1 } : post
+        (post.id_post || post.id) === postId ? { ...post, likes: (post.likes || 0) + 1 } : post
       )
     );
   };
@@ -108,7 +89,7 @@ export default function Blog() {
     if (
       window.confirm("¿Estás seguro de que quieres eliminar esta publicación?")
     ) {
-      setPosts(posts.filter((post) => post.id !== postId));
+      setPosts(posts.filter((post) => (post.id_post || post.id) !== postId));
     }
   };
 
@@ -118,7 +99,10 @@ export default function Blog() {
       : posts.filter((post) => post.categoria === filterCategory);
 
   const formatDate = (dateString) => {
+    if (!dateString) return "Fecha no disponible";
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "Fecha no disponible";
+    
     const now = new Date();
     const diffTime = Math.abs(now - date);
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
@@ -146,14 +130,16 @@ export default function Blog() {
                 Comparte tus experiencias, recetas y momentos especiales!
               </p>
             </div>
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="font-texto bg-cafe-oscuro text-cafe-claro px-6 py-3 border-1 border-transparent
-                  rounded-xl hover:bg-cafe-blanco
-                hover:text-cafe-oscuro hover:border-cafe-oscuro transition-all duration-300 hover:cursor-pointer hover:"
-            >
-              {showForm ? "Cancelar" : "+ Nueva Publicación"}
-            </button>
+            {isAuthenticated && (
+              <button
+                onClick={() => setShowForm(!showForm)}
+                className="font-texto bg-cafe-oscuro text-cafe-claro px-6 py-3 border-1 border-transparent
+                    rounded-xl hover:bg-cafe-blanco
+                  hover:text-cafe-oscuro hover:border-cafe-oscuro transition-all duration-300 hover:cursor-pointer"
+              >
+                {showForm ? "Cancelar" : "+ Nueva Publicación"}
+              </button>
+            )}
           </div>
         </div>
 
@@ -217,47 +203,31 @@ export default function Blog() {
                   required
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="font-texto text-sm font-semibold block mb-2">
-                    Tu Nombre *
-                  </label>
-                  <input
-                    type="text"
-                    value={newPost.autor}
-                    onChange={(e) =>
-                      setNewPost({ ...newPost, autor: e.target.value })
-                    }
-                    placeholder="¿Cómo te llamas?"
-                    className="font-texto w-full px-4 py-2 border border-cafe-oscuro/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-cafe-oscuro/40 focus:border-cafe-oscuro transition-all duration-200"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="font-texto text-sm font-semibold block mb-2">
-                    Categoría *
-                  </label>
-                  <select
-                    value={newPost.categoria}
-                    onChange={(e) =>
-                      setNewPost({ ...newPost, categoria: e.target.value })
-                    }
-                    className="font-texto w-full px-4 py-2 border border-cafe-oscuro/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-cafe-oscuro/40 focus:border-cafe-oscuro cursor-pointer transition-all duration-200"
-                  >
-                    {categories.slice(1).map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className="font-texto text-sm font-semibold block mb-2">
+                  Categoría
+                </label>
+                <select
+                  value={newPost.categoria}
+                  onChange={(e) =>
+                    setNewPost({ ...newPost, categoria: e.target.value })
+                  }
+                  className="font-texto w-full px-4 py-2 border border-cafe-oscuro/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-cafe-oscuro/40 focus:border-cafe-oscuro cursor-pointer transition-all duration-200"
+                >
+                  {categories.slice(1).map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="flex gap-3 pt-2">
                 <button
                   type="submit"
-                  className="font-texto bg-cafe-oscuro text-cafe-claro px-6 py-2 rounded-xl hover:bg-cafe-oscuro/90 transition-all duration-300 hover:scale-105"
+                  disabled={submitting}
+                  className="font-texto bg-cafe-oscuro text-cafe-claro px-6 py-2 rounded-xl hover:bg-cafe-oscuro/90 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Publicar
+                  {submitting ? "Publicando..." : "Publicar"}
                 </button>
                 <button
                   type="button"
@@ -273,7 +243,13 @@ export default function Blog() {
 
         {}
         <div className="space-y-6">
-          {filteredPosts.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="font-texto text-lg text-cafe-oscuro/60">
+                Cargando publicaciones...
+              </p>
+            </div>
+          ) : filteredPosts.length === 0 ? (
             <div className="text-center py-12 bg-white/50 rounded-xl border-1 border-dashed border-cafe-oscuro/30">
               <p className="font-texto text-lg text-cafe-oscuro/60">
                 No hay publicaciones en esta categoría aún.
@@ -285,9 +261,8 @@ export default function Blog() {
           ) : (
             filteredPosts.map((post) => (
               <div
-                key={post.id}
-                className="bg-white/80 border-1 border-cafe-oscuro/30 rounded-xl p-6 hover:border-cafe-oscuro transition-all
-                    duration-300"
+                key={post.id_post || post.id}
+                className="bg-white/80 border-1 border-cafe-oscuro/20 rounded-xl p-6 hover:border-cafe-oscuro transition-colors duration-300"
               >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex-1">
@@ -300,7 +275,7 @@ export default function Blog() {
                       </span>
                       <span className="font-texto">•</span>
                       <span className="font-texto">
-                        {formatDate(post.fecha)}
+                        {formatDate(post.fecha || post.fechaCreacion || post.createdAt || post.date)}
                       </span>
                       <span className="font-texto px-3 py-1 bg-cafe-oscuro/10 rounded-full text-xs">
                         {post.categoria}
@@ -308,7 +283,7 @@ export default function Blog() {
                     </div>
                   </div>
                   <button
-                    onClick={() => handleDelete(post.id)}
+                    onClick={() => handleDelete(post.id_post || post.id)}
                     className="text-cafe-oscuro/40 hover:text-red-500 hover:cursor-pointer transition-colors duration-200 ml-4"
                     title="Eliminar publicación"
                   >
@@ -331,7 +306,7 @@ export default function Blog() {
                 </p>
                 <div className="flex items-center gap-2 pt-3 border-t-1 border-cafe-oscuro/10">
                   <button
-                    onClick={() => handleLike(post.id)}
+                    onClick={() => handleLike(post.id_post || post.id)}
                     className="flex items-center gap-2 font-texto text-sm px-4 py-2 rounded-xl border-1 border-transparent bg-cafe-claro hover:border-cafe-oscuro transition-all hover:cursor-pointer duration-300 hover:scale-103"
                   >
                     <span className="font-semibold">{post.likes}</span>
