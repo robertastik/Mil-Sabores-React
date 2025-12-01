@@ -35,6 +35,10 @@ export const AuthProvider = ({ children }) => {
 
             setUser({ email: data.email });
             setIsAuthenticated(true);
+            
+            // Dispatch custom event to notify CartContext to refresh user profile
+            window.dispatchEvent(new CustomEvent('auth-change'));
+            
             return true;
         } catch (error) {
             console.error(error);
@@ -57,6 +61,9 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('email');
         setUser(null);
         setIsAuthenticated(false);
+        
+        // Dispatch custom event to notify CartContext to clear user profile
+        window.dispatchEvent(new CustomEvent('auth-change'));
     };
 
     return (

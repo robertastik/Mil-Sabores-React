@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { obtenerProductos } from "../services/ProductoService";
+import { useAuth } from "../context/AuthContext";
 
 const defaultIngredients = (producto) => {
   const cat = (producto?.categoria || producto?.category || "").toLowerCase();
@@ -17,6 +18,7 @@ export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart, cartItems, updateQuantity } = useCart();
+  const { isAuthenticated } = useAuth();
 
   const [producto, setProducto] = useState(null);
   const [productos, setProductos] = useState([]);
@@ -132,18 +134,12 @@ export default function ProductDetail() {
   const cantActual = itemActual?.quantity ?? 0;
 
   const ensureUserAndNavigateToLogin = useCallback(() => {
-    try {
-      const user = JSON.parse(localStorage.getItem("loggedInUser"));
-      if (!user) {
-        navigate("/login");
-        return false;
-      }
-      return true;
-    } catch {
+    if (!isAuthenticated) {
       navigate("/login");
       return false;
     }
-  }, [navigate]);
+    return true;
+  }, [isAuthenticated, navigate]);
 
   const onAdd = useCallback(() => {
     if (!ensureUserAndNavigateToLogin()) return;

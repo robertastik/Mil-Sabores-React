@@ -2,14 +2,15 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import { obtenerProductos } from "../services/ProductoService";
+import { useAuth } from "../context/AuthContext";
 
 const Productos = () => {
   const [productos, setProductos] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const [user, setUser] = useState(null);
   const { addToCart } = useCart();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     obtenerProductos()
@@ -25,14 +26,6 @@ const Productos = () => {
   useEffect(() => {
     const handleScroll = () => setShowScrollButton(window.scrollY > 300);
     window.addEventListener("scroll", handleScroll);
-
-    try {
-      const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-      setUser(loggedInUser);
-    } catch {
-      setUser(null);
-    }
-
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -52,13 +45,13 @@ const Productos = () => {
 
   const handleAddToCart = useCallback(
     (producto) => {
-      if (!user) {
+      if (!isAuthenticated) {
         navigate("/login");
       } else {
         addToCart(producto);
       }
     },
-    [user, navigate, addToCart]
+    [isAuthenticated, navigate, addToCart]
   );
 
   return (
@@ -134,7 +127,7 @@ const Productos = () => {
                             );
                             navigate(`/producto/${producto.id_prod}`);
                           }}
-                          className="bg-white rounded-lg overflow-hidden cursor-pointer border hover:border-cafe-oscuro transition-all"
+                          className="bg-white rounded-lg overflow-hidden cursor-pointer border border-cafe-oscuro/20 hover:border-cafe-oscuro transition-colors duration-300"
                         >
                           <img
                             src={producto.imagenUrl}

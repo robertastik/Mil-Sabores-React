@@ -3,8 +3,9 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import HeroImage from "../assets/images/hero-image.jpg";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
-function ProductCarousel({ title, products }) {
+function ProductCarousel({ title, products, isAuthenticated }) {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const carouselRef = useRef(null);
@@ -32,16 +33,11 @@ function ProductCarousel({ title, products }) {
 
   const handleAddToCart = (e, producto) => {
     e.stopPropagation();
-    try {
-      const user = JSON.parse(localStorage.getItem("loggedInUser"));
-      if (!user) {
-        navigate("/login");
-        return;
-      }
-      addToCart(producto);
-    } catch (error) {
+    if (!isAuthenticated) {
       navigate("/login");
+      return;
     }
+    addToCart(producto);
   };
 
   return (
@@ -147,6 +143,7 @@ function ProductCarousel({ title, products }) {
 
 export default function Home() {
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   // NUEVO:
   const [productos, setProductos] = useState([]);
@@ -228,6 +225,7 @@ export default function Home() {
             key={categoria}
             title={categoria}
             products={productosPorCategoria[categoria]}
+            isAuthenticated={isAuthenticated}
           />
         ))}
       </div>

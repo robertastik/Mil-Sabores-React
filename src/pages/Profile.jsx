@@ -1,73 +1,49 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import hero from "../assets/images/hero-image.jpg";
+import { useAuth } from "../context/AuthContext";
+import { api } from "../config/axiosConfig";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { user: authUser, isAuthenticated } = useAuth();
+  const [userData, setUserData] = useState(null);
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fechaNacimiento, setFechaNacimiento] = useState("");
   const [preferencias, setPreferencias] = useState("");
   const [error, setError] = useState("");
   const [exito, setExito] = useState("");
   const [cargando, setCargando] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(true);
 
   useEffect(() => {
-    const normalizeEmail = (e) => (e || "").trim().toLowerCase();
-
-    let loggedInUser = null;
-    try {
-      loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-    } catch (e) {
-      loggedInUser = null;
-    }
-
-    if (!loggedInUser) {
+    if (!isAuthenticated) {
       navigate("/login");
       return;
     }
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const normalizedEmail = normalizeEmail(loggedInUser.email);
-    const userIndex = users.findIndex((u) => normalizeEmail(u.email) === normalizedEmail);
-
-    const calcularEdad = (fechaStr) => {
-      if (!fechaStr) return null;
-      const nacimiento = new Date(fechaStr);
-      const hoy = new Date();
-      let edad = hoy.getFullYear() - nacimiento.getFullYear();
-      const m = hoy.getMonth() - nacimiento.getMonth();
-      if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
-        edad--;
+    const fetchUserProfile = async () => {
+      try {
+        const response = await api.get('/auth/profile');
+        const profileData = response.data;
+        setUserData(profileData);
+        setName(profileData.nombre || "");
+        setFechaNacimiento(profileData.fechaNacimiento || "");
+        setPreferencias(profileData.preferencias || "");
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+        setError("Error al cargar el perfil. Por favor recarga la página.");
+      } finally {
+        setLoadingProfile(false);
       }
-      return edad;
     };
 
-    loggedInUser.email = normalizedEmail;
-
-    if (loggedInUser.fechaNacimiento && typeof loggedInUser.edad !== "number") {
-      loggedInUser.edad = calcularEdad(loggedInUser.fechaNacimiento);
-    }
-    if (typeof loggedInUser.isDuoc !== "boolean") {
-      loggedInUser.isDuoc = /@duocuc\.cl$/i.test(normalizedEmail);
-    }
-    if (typeof loggedInUser.hasFelices50 !== "boolean") {
-      loggedInUser.hasFelices50 = !!loggedInUser.hasFelices50;
-    }
-
-    if (userIndex > -1) {
-      users[userIndex] = { ...users[userIndex], ...loggedInUser };
-      localStorage.setItem("users", JSON.stringify(users));
-      localStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
-    }
-
-    setUser(loggedInUser);
-    setName(loggedInUser.name);
-    setFechaNacimiento(loggedInUser.fechaNacimiento || "");
-    setPreferencias(loggedInUser.preferencias || "");
-  }, [navigate]);
+    fetchUserProfile();
+  }, [isAuthenticated, navigate]);
 
   const validar = () => {
     if (!name) return "El nombre es obligatorio";
@@ -78,7 +54,7 @@ export default function Profile() {
     return "";
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setExito("");
@@ -89,35 +65,38 @@ export default function Profile() {
     }
 
     setCargando(true);
-    setTimeout(() => {
-      const users = JSON.parse(localStorage.getItem("users")) || [];
-      const userIndex = users.findIndex((u) => u.email === user.email);
-
-      if (userIndex > -1) {
-        const updatedUser = {
-          ...users[userIndex],
-          name: name,
-          password: password ? password : users[userIndex].password,
-          fechaNacimiento: fechaNacimiento || users[userIndex].fechaNacimiento,
-          preferencias: preferencias || users[userIndex].preferencias,
-        };
-
-        users[userIndex] = updatedUser;
-        localStorage.setItem("users", JSON.stringify(users));
-        localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
-        setUser(updatedUser);
-        setExito("¡Perfil actualizado con éxito!");
-      } else {
-        setError("No se pudo encontrar el usuario para actualizar.");
+    try {
+      const updateData = {
+        nombre: name,
+        fechaNacimiento: fechaNacimiento,
+        preferencias: preferencias,
+      };
+      if (password) {
+        updateData.password = password;
       }
 
-      setCargando(false);
+      const response = await api.put('/auth/profile', updateData);
+      setUserData(response.data);
+      setExito("¡Perfil actualizado con éxito!");
       setPassword("");
       setConfirmPassword("");
-    }, 1000);
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      setError(err.response?.data?.message || "Error al actualizar el perfil.");
+    } finally {
+      setCargando(false);
+    }
   };
 
-  if (!user) {
+  if (loadingProfile) {
+    return (
+      <section className="min-h-screen bg-cafe-claro flex items-center justify-center">
+        <div className="text-cafe-oscuro text-xl">Cargando perfil...</div>
+      </section>
+    );
+  }
+
+  if (!userData) {
     return null;
   }
 
@@ -154,7 +133,7 @@ export default function Profile() {
               className="w-full bg-cafe-oscuro/10 placeholder-cafe-oscuro/60 border border-cafe-oscuro/20 rounded-2xl px-4 py-2"
               type="email"
               id="email"
-              value={user.email}
+              value={userData.email || authUser?.email || ""}
               disabled
             />
           </div>
@@ -174,7 +153,7 @@ export default function Profile() {
 
           <div>
             <label className="block text-sm font-medium mb-1" htmlFor="prefs">
-              Preferencias (ej. sabores favoritos)
+              Preferencias (ej. sabores favoritos) (opcional)
             </label>
             <input
               className="w-full bg-cafe-oscuro/5 placeholder-cafe-oscuro/60 border border-cafe-oscuro/20 rounded-2xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cafe-oscuro"
@@ -186,11 +165,11 @@ export default function Profile() {
           </div>
 
           <div className="text-sm text-cafe-oscuro/80">
-            <p>Edad: {user.edad ?? "No registrada"}</p>
+            <p>Edad: {userData.edad ?? "No registrada"}</p>
             <p>
-              Beneficio DUOC: {user.isDuoc ? "Sí (torta gratis en tu cumpleaños)" : "No"}
+              Beneficio DUOC: {userData.isDuoc ? "Sí (torta gratis en tu cumpleaños)" : "No"}
             </p>
-            <p>Cupon FELICES50 aplicado: {user.hasFelices50 ? "Sí" : "No"}</p>
+            <p>Cupon FELICES50 aplicado: {userData.felicesCincuenta ? "Sí" : "No"}</p>
           </div>
 
           <div>
@@ -218,13 +197,33 @@ export default function Profile() {
             >
               Nueva Contraseña
             </label>
-            <input
-              className="w-full bg-cafe-oscuro/5 placeholder-cafe-oscuro/60 border border-cafe-oscuro/20 rounded-2xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cafe-oscuro"
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="relative">
+              <input
+                className="w-full bg-cafe-oscuro/5 placeholder-cafe-oscuro/60 border border-cafe-oscuro/20 rounded-2xl px-4 py-2 pr-12 focus:outline-none focus:ring-2 focus:ring-cafe-oscuro"
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-cafe-oscuro/60 hover:text-cafe-oscuro"
+              >
+                {showPassword ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                ) : (
+                  
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
           <div>
@@ -234,13 +233,33 @@ export default function Profile() {
             >
               Confirmar Nueva Contraseña
             </label>
-            <input
-              className="w-full bg-cafe-oscuro/5 placeholder-cafe-oscuro/60 border border-cafe-oscuro/20 rounded-2xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cafe-oscuro"
-              type="password"
-              id="confirm-password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
+            <div className="relative">
+              <input
+                className="w-full bg-cafe-oscuro/5 placeholder-cafe-oscuro/60 border border-cafe-oscuro/20 rounded-2xl px-4 py-2 pr-12 focus:outline-none focus:ring-2 focus:ring-cafe-oscuro"
+                type={showConfirmPassword ? "text" : "password"}
+                id="confirm-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-cafe-oscuro/60 hover:text-cafe-oscuro"
+              >
+                {showPassword ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                ) : (
+                  
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
           <button

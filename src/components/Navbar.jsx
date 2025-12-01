@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+// 1. IMPORTAMOS EL CONTEXTO
+import { useAuth } from '../context/AuthContext';
 
 const ProfileIcon = ({ name }) => (
   <div className="w-10 h-10 rounded-full bg-cafe-oscuro text-cafe-claro flex items-center justify-center font-bold text-lg">
@@ -35,7 +37,10 @@ const CartIcon = ({ count }) => (
 );
 
 export default function Navbar() {
-  const [user, setUser] = useState(null);
+  const { user, isAuthenticated, logout } = useAuth();
+  
+  const displayName = user?.nombre || (user?.email ? user.email.split('@')[0] : "Usuario");
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [cartDropdownOpen, setCartDropdownOpen] = useState(false);
   const cartDropdownRef = useRef(null);
@@ -65,10 +70,12 @@ export default function Navbar() {
   const [thankYouVisible, setThankYouVisible] = useState(false);
 
   useEffect(() => {
-    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-    setUser(loggedInUser);
-    setDropdownOpen(false);
-  }, [location]);
+    if (!isAuthenticated) {
+        setDropdownOpen(false);
+    } else {
+        setDropdownOpen(false);
+    }
+  }, [location, isAuthenticated]);
 
   useEffect(() => {
     const onDoc = (e) => {
@@ -161,8 +168,8 @@ export default function Navbar() {
   }, [showMap, shipmentCoords]);
 
   const handleLogout = () => {
-    localStorage.removeItem("loggedInUser");
-    setUser(null);
+    logout(); 
+    setDropdownOpen(false);
     navigate("/");
   };
 
@@ -362,7 +369,6 @@ export default function Navbar() {
           </NavLink>
         </div>
 
-
         <div className="flex justify-center">
           <ul className="flex gap-8 items-center">
             <li>
@@ -392,18 +398,17 @@ export default function Navbar() {
           </ul>
         </div>
 
-
         <div className="flex justify-end relative">
-          {user ? (
+          {isAuthenticated ? (
             <div className="flex items-center gap-4">
               <span className="font-texto text-cafe-oscuro">
-                Hola, {user.name}
+                Hola, {displayName}
               </span>
               <button
                 className="hover:cursor-pointer flex items-center"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
-                <ProfileIcon name={user.name} />
+                <ProfileIcon name={displayName} />
               </button>
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 top-full w-48 bg-cafe-claro rounded-2xl shadow-lg border-1 border-cafe-oscuro py-2">
@@ -462,7 +467,7 @@ export default function Navbar() {
               ref={cartDropdownRef}
               className="absolute right-0 mt-2 top-full w-80 md:w-96 bg-cafe-claro rounded-2xl shadow-lg border-1 border-cafe-oscuro py-2 z-30"
             >
-              {!user ? (
+              {!isAuthenticated ? (
                 <div className="p-6 text-center">
                   <p className="font-texto text-cafe-oscuro">
                     Por favor, inicia sesión para ver y gestionar tu carrito de
@@ -500,7 +505,7 @@ export default function Navbar() {
                       <div className="max-h-96 overflow-y-auto p-2">
                         {cartItems.map((item) => (
                           <div
-                            key={item.id}
+                            key={item.id_prod || item.id}
                             className="flex items-center gap-4 p-2 rounded-lg hover:bg-cafe-oscuro/5"
                           >
                             <img
@@ -518,25 +523,25 @@ export default function Navbar() {
                               <div className="flex items-center gap-2 mt-1">
                                 <button
                                   onClick={() =>
-                                    updateQuantity(item.id, item.quantity - 1)
+                                    updateQuantity(item.id_prod || item.id, item.quantity - 1)
                                   }
-                                  className="px-2 border rounded-md"
+                                  className="px-2 pb-0.5 border rounded-md bg-cafe-oscuro text-cafe-claro rounded-xl hover:bg-cafe-claro hover:text-cafe-oscuro border border-transparent hover:border-cafe-oscuro transition-colors duration-300"
                                 >
                                   -
                                 </button>
                                 <span>{item.quantity}</span>
                                 <button
                                   onClick={() =>
-                                    updateQuantity(item.id, item.quantity + 1)
+                                    updateQuantity(item.id_prod || item.id, item.quantity + 1)
                                   }
-                                  className="px-2 border rounded-md"
+                                  className="px-1.5 pb-0.5 border rounded-md bg-cafe-oscuro text-cafe-claro rounded-xl hover:bg-cafe-claro hover:text-cafe-oscuro border border-transparent hover:border-cafe-oscuro transition-colors duration-300"
                                 >
                                   +
                                 </button>
                               </div>
                             </div>
                             <button
-                              onClick={() => removeFromCart(item.id)}
+                              onClick={() => removeFromCart(item.id_prod || item.id)}
                               className="text-red-500 hover:text-red-700"
                               title="Eliminar"
                             >
@@ -597,7 +602,7 @@ export default function Navbar() {
                             }, 2000);
                           }}
                           disabled={processingPurchase}
-                          className="w-full mt-4 font-texto bg-cafe-oscuro text-cafe-claro px-4 py-2 rounded-xl hover:bg-cafe-oscuro/90 transition-all disabled:opacity-50"
+                          className="w-full mt-4 font-texto bg-cafe-oscuro text-cafe-claro px-4 py-2 rounded-xl bg-cafe-oscuro text-cafe-claro rounded-xl hover:bg-cafe-claro hover:text-cafe-oscuro border border-transparent hover:border-cafe-oscuro transition-colors duration-300"
                         >
                           {processingPurchase
                             ? "Procesando..."
