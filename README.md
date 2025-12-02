@@ -1,6 +1,6 @@
 # 🍰 Mil Sabores - Frontend React
 
-Aplicación web frontend para **Mil Sabores**, una pastelería artesanal ubicada en Santiago de Chile. Esta aplicación permite a los clientes explorar productos, realizar pedidos y participar en la comunidad a través de un blog.
+Aplicación web frontend para **Mil Sabores**, una pastelería artesanal (ficticia) ubicada en Santiago de Chile. Esta aplicación permite a los clientes explorar productos, realizar pedidos y participar en la comunidad a través de un blog.
 
 ## 📋 Descripción
 
