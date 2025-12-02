@@ -1,5 +1,9 @@
 import axios from 'axios';
 
+
+// la variable >> API << contiene el resultado de la >> funcion CREATE de axios <<
+// funcion la cual toma la >> ruta base del backend << y la configura como >> JSON << para ser
+// pasada a las demas  >> funciones de servicios <<
 export const api = axios.create({
     baseURL: 'http://localhost:8080/api', 
     headers: {

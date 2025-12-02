@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { getPosts, createPost } from "../services/PostService";
+import { NavLink } from "react-router-dom";
+import { getPosts, createPost, deletePost } from "../services/PostService";
 import { useAuth } from "../context/AuthContext";
 
 export default function Blog() {
@@ -85,11 +86,21 @@ export default function Blog() {
     );
   };
 
-  const handleDelete = (postId) => {
+  const handleDelete = async (postId) => {
+    if (!isAuthenticated) {
+      alert("Debes iniciar sesión para eliminar publicaciones.");
+      return;
+    }
     if (
       window.confirm("¿Estás seguro de que quieres eliminar esta publicación?")
     ) {
-      setPosts(posts.filter((post) => (post.id_post || post.id) !== postId));
+      try {
+        await deletePost(postId);
+        setPosts(posts.filter((post) => (post.id_post || post.id) !== postId));
+      } catch (error) {
+        console.error("Error deleting post:", error);
+        alert("Error al eliminar la publicación. Solo puedes eliminar tus propias publicaciones.");
+      }
     }
   };
 
@@ -130,7 +141,7 @@ export default function Blog() {
                 Comparte tus experiencias, recetas y momentos especiales!
               </p>
             </div>
-            {isAuthenticated && (
+            {isAuthenticated ? (
               <button
                 onClick={() => setShowForm(!showForm)}
                 className="font-texto bg-cafe-oscuro text-cafe-claro px-6 py-3 border-1 border-transparent
@@ -139,6 +150,26 @@ export default function Blog() {
               >
                 {showForm ? "Cancelar" : "+ Nueva Publicación"}
               </button>
+            ) : (
+              <div className="flex border-l-1 border-cafe-oscuro/30 pl-8 flex-col items-end gap-2">
+                <p className="pb-1 font-texto text-m text-cafe-oscuro/70">
+                  ¡Ingresa con tu cuenta para crear una publicación!
+                </p>
+                <div className="flex gap-2">
+                  <NavLink
+                    to="/login"
+                    className="font-texto text-cafe-oscuro px-4 py-2 border-1 border-cafe-oscuro rounded-xl hover:bg-cafe-oscuro hover:text-cafe-claro transition-all duration-300"
+                  >
+                    Iniciar Sesión
+                  </NavLink>
+                  <NavLink
+                    to="/register"
+                    className="font-texto text-cafe-oscuro px-4 py-2 border-1 border-cafe-oscuro rounded-xl hover:bg-cafe-oscuro hover:text-cafe-claro transition-all duration-300"
+                  >
+                    Registrarse
+                  </NavLink>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -271,7 +302,7 @@ export default function Blog() {
                     </h3>
                     <div className="flex flex-wrap items-center gap-3 text-sm text-cafe-oscuro/70">
                       <span className="font-texto font-semibold">
-                        {post.autor}
+                        {post.autor?.nombre || post.autor}
                       </span>
                       <span className="font-texto">•</span>
                       <span className="font-texto">
@@ -282,24 +313,26 @@ export default function Blog() {
                       </span>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDelete(post.id_post || post.id)}
-                    className="text-cafe-oscuro/40 hover:text-red-500 hover:cursor-pointer transition-colors duration-200 ml-4"
-                    title="Eliminar publicación"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
+                  {isAuthenticated && user?.email === post.autor?.email && (
+                    <button
+                      onClick={() => handleDelete(post.id_post || post.id)}
+                      className="text-cafe-oscuro/40 hover:text-red-500 hover:cursor-pointer transition-colors duration-200 ml-4"
+                      title="Eliminar publicación"
                     >
-                      <path
-                        fillRule="evenodd"
-                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  )}
                 </div>
                 <p className="font-texto text-base leading-relaxed mb-4 text-cafe-oscuro/90 whitespace-pre-wrap">
                   {post.contenido}
