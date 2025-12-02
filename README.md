@@ -164,8 +164,8 @@ npm run test:coverage
 
 ## 📄 Licencia
 
-Proyecto privado - Todos los derechos reservados.
+Proyecto privado para DUOC UC.
 
 ---
 
-Desarrollado con ❤️ para Mil Sabores Pastelería Artesanal 🍰
+Desarrollado con ❤️ para Mil Sabores Pastelería 🍰
