@@ -37,7 +37,7 @@ const CartIcon = ({ count }) => (
 );
 
 export default function Navbar() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
   
   const displayName = user?.nombre || (user?.email ? user.email.split('@')[0] : "Usuario");
 
@@ -395,6 +395,16 @@ export default function Navbar() {
                 Sobre Nosotros
               </NavLink>
             </li>
+            {isAuthenticated && isAdmin() && (
+              <li>
+                <NavLink
+                  to="/admin"
+                  className="text-purple-700 hover:underline font-texto font-bold flex items-center gap-1"
+                >
+                  <span>⚙️</span> Admin
+                </NavLink>
+              </li>
+            )}
           </ul>
         </div>
 

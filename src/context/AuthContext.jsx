@@ -17,11 +17,12 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        const email = localStorage.getItem('email'); 
+        const email = localStorage.getItem('email');
+        const role = localStorage.getItem('role');
 
         if (token) {
             setIsAuthenticated(true);
-            setUser({ email }); 
+            setUser({ email, role: role || 'USER' }); 
         }
         setLoading(false);
     }, []);
@@ -30,10 +31,13 @@ export const AuthProvider = ({ children }) => {
         try {
             const data = await loginAuth(email, password);
             
+            console.log("🔐 Respuesta del login:", data); // DEBUG: Ver qué devuelve el backend
+            
             localStorage.setItem('token', data.token);
             localStorage.setItem('email', data.email);
+            localStorage.setItem('role', data.role || 'USER');
 
-            setUser({ email: data.email });
+            setUser({ email: data.email, role: data.role || 'USER' });
             setIsAuthenticated(true);
             
             // Dispatch custom event to notify CartContext to refresh user profile
@@ -59,6 +63,7 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('email');
+        localStorage.removeItem('role');
         setUser(null);
         setIsAuthenticated(false);
         
@@ -66,8 +71,10 @@ export const AuthProvider = ({ children }) => {
         window.dispatchEvent(new CustomEvent('auth-change'));
     };
 
+    const isAdmin = () => user?.role === 'ADMIN';
+
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, login, register, logout, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );
